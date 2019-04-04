@@ -1,0 +1,5 @@
+﻿  demo.cpp
+d:\users\roy\source\repos\cagdkit2012\demo\demo.cpp(345): warning C4244: 'argument': conversion from 'double' to 'const unsigned int', possible loss of data
+d:\users\roy\source\repos\cagdkit2012\demo\demo.cpp(333): warning C4101: 's': unreferenced local variable
+d:\users\roy\source\repos\cagdkit2012\demo\demo.cpp(332): warning C4101: 'x': unreferenced local variable
+  demo.vcxproj -> D:\Users\Roy\source\repos\CAGDKit2012\demo\.\Debug\demo.exe

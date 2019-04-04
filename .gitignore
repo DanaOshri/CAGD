@@ -2,11 +2,12 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/cagd/v15
-/src
-/lib
-/doc
-/Debug
-/Backup
+/.vs
+#/src
+#/lib
+#doc
+#/Debug
+#/Backup
 *.pdb
-/demo/Debug
+#/demo/Debug
+*.ipch
