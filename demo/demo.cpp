@@ -3,11 +3,22 @@
 #include "expr2tree.h"
 #include "resource.h"
 
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <iostream>
+
+#define D_CAGD
+
+#define DENSITY 1000.
+
 enum {
   MY_CLICK = CAGD_USER,
   MY_POLY,
   MY_ANIM,
   MY_DRAG,
+  MY_DRAWCURVE,
   MY_ADD,
   MY_COLOR,
   MY_REMOVE,
@@ -187,6 +198,79 @@ void myPolyLeftDown(int x, int y, PVOID userData)
   cagdRedraw();
 }
 
+auto draw_curve();
+void my_curve_left_down(int x, int y, PVOID userData);
+#define stastic static
+
+class RND_Curve
+{
+public:
+  stastic RND_Curve *get_instance(std::string path)
+  {
+    if (my_curve == NULL)
+      my_curve = new RND_Curve(path);
+
+    return my_curve;
+  }
+
+public:
+
+private:
+  RND_Curve(std::string path);
+public:
+  std::vector<CAGD_POINT *> curve;
+  e2t_expr_node *treeX, *treeY, *treeZ;
+  stastic RND_Curve *my_curve;
+};
+
+RND_Curve *RND_Curve::my_curve = NULL;
+
+RND_Curve::RND_Curve(std::string path)
+{
+  std::vector<std::string> param_eqs(3);
+  double tmin = 0., tmax = 0.;
+
+  get_data(path, param_eqs, tmin, tmax);
+
+  double x;
+  char s[128];
+
+  treeX = e2t_expr2tree(param_eqs[0].c_str());
+  treeY = e2t_expr2tree(param_eqs[1].c_str());
+  treeZ = e2t_expr2tree(param_eqs[2].c_str());
+  std::vector<CAGD_POINT*> curve;
+  std::vector<CAGD_POINT> loc_curve;
+
+  if (treeX && treeY && treeZ)
+  {
+
+    curve.resize(DENSITY + 1);
+    loc_curve.resize(DENSITY + 1);
+
+    double alp = (tmax - tmin) / DENSITY;
+
+    for (double stp = tmin, i = 0; stp <= tmax; stp += alp, ++i)
+    {
+      e2t_setparamvalue(stp, E2T_PARAM_T);
+
+      double x = e2t_evaltree(treeX);
+      double y = e2t_evaltree(treeY);
+      double z = e2t_evaltree(treeZ);
+
+      CAGD_POINT *point = new CAGD_POINT{ x, y, z };
+      curve[( int )i] = point;
+      loc_curve[( int )i] = *point;
+    }
+
+    cagdHideSegment(myText = cagdAddText(&loc_curve[0], ""));
+    cagdAddPolyline(&loc_curve[0], loc_curve.size() - 1);
+  }
+  else
+  {
+    printf("Error loading tree");
+  }
+}
+
 void myCommand(int id, int unUsed, PVOID userData)
 {
   int i;
@@ -233,8 +317,12 @@ void myCommand(int id, int unUsed, PVOID userData)
       cagdSetHelpText(dragText[1]);
       cagdShowHelp();
       cagdHideSegment(myText = cagdAddText(p, ""));
-      cagdRegisterCallback(CAGD_RBUTTONUP, myDragRightUp, (PVOID)myPopup);
+      cagdRegisterCallback(CAGD_RBUTTONUP, myDragRightUp, ( PVOID )myPopup);
       cagdRegisterCallback(CAGD_LBUTTONDOWN, myDragLeftDown, NULL);
+      break;
+    case MY_DRAWCURVE:
+      auto curve = draw_curve();
+      cagdRegisterCallback(CAGD_LBUTTONDOWN, my_curve_left_down, (PVOID)curve);
       break;
     case MY_CLICK:
       cagdSetView(CAGD_PERSP);
@@ -257,40 +345,6 @@ void myCommand(int id, int unUsed, PVOID userData)
   }
   cagdRedraw();
 }
-
-#define D_CAGD
-
-#ifdef D_CAGD
-
-int main(int argc, char *argv[])
-{
-  HMENU hMenu;
-  cagdBegin("CAGD", 512, 512);
-  hMenu = CreatePopupMenu();
-  AppendMenu(hMenu, MF_STRING, MY_CLICK, "Click");
-  AppendMenu(hMenu, MF_STRING, MY_POLY, "Polyline");
-  AppendMenu(hMenu, MF_STRING, MY_ANIM, "Animation");
-  AppendMenu(hMenu, MF_STRING, MY_DRAG, "Drag, Popup & Dialog");
-  cagdAppendMenu(hMenu, "Demos");
-  myPopup = CreatePopupMenu();
-  AppendMenu(myPopup, MF_STRING | MF_DISABLED, 0, "Point");
-  AppendMenu(myPopup, MF_SEPARATOR, 0, NULL);
-  AppendMenu(myPopup, MF_STRING, MY_ADD, "Add");
-  AppendMenu(myPopup, MF_SEPARATOR, 0, NULL);
-  AppendMenu(myPopup, MF_STRING, MY_COLOR, "Change color...");
-  AppendMenu(myPopup, MF_STRING, MY_REMOVE, "Remove");
-  cagdRegisterCallback(CAGD_MENU, myCommand, (PVOID)hMenu);
-  cagdShowHelp();
-  cagdMainLoop();
-  return 0;
-}
-
-#else // D_CAGD
-
-#include <sstream>
-#include <fstream>
-#include <string>
-#include <vector>
 
 void get_data(const std::string &path, std::vector<std::string> &param_eqs, double &tmin, double &tmax)
 {
@@ -330,8 +384,114 @@ void get_data(const std::string &path, std::vector<std::string> &param_eqs, doub
       params_stream >> tmin >> tmax;
     }
   }
-
 }
+
+auto draw_curve()
+{
+  cagdScale(0.5, 0.5, 0.5);
+  cagdRotate(45, 0, 0, 1);
+  std::cout << "FUCK YEAH!!!!!!" << std::endl;
+
+  const std::string PATH = "allen.dat";
+  std::vector<std::string> param_eqs(3);
+  double tmin = 0., tmax = 0.;
+
+  get_data(PATH, param_eqs, tmin, tmax);
+
+  e2t_expr_node *treeX = NULL, *treeY = NULL, *treeZ = NULL;
+  double x;
+  char s[128];
+
+  treeX = e2t_expr2tree(param_eqs[0].c_str());
+  treeY = e2t_expr2tree(param_eqs[1].c_str());
+  treeZ = e2t_expr2tree(param_eqs[2].c_str());
+  std::vector<CAGD_POINT*> *curve = NULL;
+  std::vector<CAGD_POINT> loc_curve;
+
+  if (treeX && treeY && treeZ)
+  {
+
+    curve = new std::vector<CAGD_POINT*>(DENSITY+1);
+    loc_curve.resize(DENSITY + 1);
+
+    double alp = (tmax - tmin) / DENSITY;
+
+    for (double stp = tmin, i = 0; stp <= tmax; stp += alp, ++i)
+    {
+      e2t_setparamvalue(stp, E2T_PARAM_T);
+
+      double x = e2t_evaltree(treeX);
+      double y = e2t_evaltree(treeY);
+      double z = e2t_evaltree(treeZ);
+
+      CAGD_POINT *point = new CAGD_POINT{ x, y, z };
+      (*curve)[( int )i] = point;
+      loc_curve[( int )i] = *point;
+    }
+
+    cagdHideSegment(myText = cagdAddText(&loc_curve[0], ""));
+    cagdAddPolyline(&loc_curve[0], loc_curve.size() - 1);
+  }
+  else
+  {
+    printf("Error loading tree");
+  }
+
+  return curve;
+}
+
+void my_curve_left_down(int x, int y, PVOID curve)
+{
+  auto my_curve = (std::vector<CAGD_POINT*> *)curve;
+  CAGD_POINT p;
+  UINT id;
+  int v;
+  for (cagdPick(x, y); id = cagdPickNext();)
+    if (cagdGetSegmentType(id) == CAGD_SEGMENT_POLYLINE)
+      break;
+  if (id)
+  {
+    if (v = cagdGetNearestVertex(id, x, y))
+    {
+      cagdGetVertex(id, --v, &p);
+      sprintf(myBuffer, " near #%d", v);
+      cagdReuseText(myText, &p, myBuffer);
+      cagdShowSegment(myText);
+    }
+  }
+  else
+    myMessage("Ha-ha!", "You missed...", MB_ICONERROR);
+  cagdRedraw();
+}
+#ifdef D_CAGD
+
+int main(int argc, char *argv[])
+{
+  HMENU hMenu;
+  cagdBegin("CAGD", 512, 512);
+  hMenu = CreatePopupMenu();
+  AppendMenu(hMenu, MF_STRING, MY_CLICK, "Click");
+  AppendMenu(hMenu, MF_STRING, MY_POLY, "Polyline");
+  AppendMenu(hMenu, MF_STRING, MY_ANIM, "Animation");
+  AppendMenu(hMenu, MF_STRING, MY_DRAG, "Drag, Popup & Dialog");
+  AppendMenu(hMenu, MF_STRING, MY_DRAWCURVE, "Draw Curve");
+  cagdAppendMenu(hMenu, "Demos");
+  myPopup = CreatePopupMenu();
+  AppendMenu(myPopup, MF_STRING | MF_DISABLED, 0, "Point");
+  AppendMenu(myPopup, MF_SEPARATOR, 0, NULL);
+  AppendMenu(myPopup, MF_STRING, MY_ADD, "Add");
+  AppendMenu(myPopup, MF_SEPARATOR, 0, NULL);
+  AppendMenu(myPopup, MF_STRING, MY_COLOR, "Change color...");
+  AppendMenu(myPopup, MF_STRING, MY_REMOVE, "Remove");
+  cagdRegisterCallback(CAGD_MENU, myCommand, (PVOID)hMenu);
+  cagdShowHelp();
+  cagdMainLoop();
+  return 0;
+}
+
+#else // D_CAGD
+
+
 
 int main()
 {

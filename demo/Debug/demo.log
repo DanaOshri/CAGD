@@ -1,4 +1,0 @@
-﻿  demo.cpp
-  expr2tree.c
-d:\users\roy\source\repos\cagdkit2012\demo\expr2tree.c(438): warning C4018: '>=': signed/unsigned mismatch
-  demo.vcxproj -> D:\Users\Roy\source\repos\CAGDKit2012\demo\.\Debug\demo.exe
