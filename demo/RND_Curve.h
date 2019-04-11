@@ -29,6 +29,9 @@ public:
   UINT get_B_id() const { return B_id_; }
   UINT get_K_id() const { return K_id_; }
 
+  void set_lmb_d(bool v) { lmb_d_ = v; }
+  bool get_lmb_d() const { return lmb_d_; }
+
   double get_t_from_point(int p);
 
 public:
@@ -43,5 +46,6 @@ private:
   UINT B_id_;
   UINT K_id_;
   double t_min_, t_max_;
+  bool  lmb_d_;
 
 };

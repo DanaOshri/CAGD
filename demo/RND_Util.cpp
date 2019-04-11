@@ -33,7 +33,11 @@ void get_data(const std::string &path, std::vector<std::string> &param_eqs, doub
     // Parse parameters line.
     else
     {
-      line.replace(line.find(','), 1, " ");
+      size_t ind = line.find(',');
+
+      if (ind != std::string::npos)
+        line.replace(line.find(','), 1, " ");
+
       std::istringstream params_stream(line);
       std::string str_prm;
 

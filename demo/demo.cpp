@@ -9,7 +9,8 @@
 #include <vector>
 #include <iostream>
 
-
+void my_curve_left_up(int x, int y, PVOID curve);
+void my_curve_move(int x, int y, PVOID curve);
 void my_curve_left_down(int x, int y, PVOID userData);
 
 #define D_CAGD
@@ -254,11 +255,13 @@ void myCommand(int id, int unUsed, PVOID userData)
       cagdRegisterCallback(CAGD_LBUTTONDOWN, myDragLeftDown, NULL);
       break;
     case MY_DRAWCURVE:
-	{
-		RND_Curve *curve = RND_Curve::get_instance("jjia.dat");
-		cagdRegisterCallback(CAGD_LBUTTONDOWN, my_curve_left_down, (PVOID)curve);
-		break;
-	}
+  {
+    RND_Curve *curve = RND_Curve::get_instance("FrenetData/marc1.dat");
+    cagdRegisterCallback(CAGD_MOUSEMOVE, my_curve_move, (PVOID)curve);
+    cagdRegisterCallback(CAGD_LBUTTONDOWN, my_curve_left_down, (PVOID)curve);
+    cagdRegisterCallback(CAGD_LBUTTONUP, my_curve_left_up, (PVOID)curve);
+    break;
+  }
     case MY_CLICK:
       //cagdSetView(CAGD_PERSP);
       //cagdSetDepthCue(TRUE);
@@ -306,19 +309,17 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-
-void my_curve_left_down(int x, int y, PVOID curve)
+void draw_curve(int x, int y, RND_Curve *my_curve)
 {
-  auto my_curve = (RND_Curve *)curve;
   CAGD_POINT p;
   UINT id;
   int v;
   for (cagdPick(x, y); id = cagdPickNext();)
     if (cagdGetSegmentType(id) == CAGD_SEGMENT_POLYLINE &&
-      id != my_curve->get_T_id() &&
-      id != my_curve->get_N_id() &&
-      id != my_curve->get_B_id() &&
-      id != my_curve->get_K_id() )
+        id != my_curve->get_T_id() &&
+        id != my_curve->get_N_id() &&
+        id != my_curve->get_B_id() &&
+        id != my_curve->get_K_id())
       break;
   if (id)
   {
@@ -336,4 +337,27 @@ void my_curve_left_down(int x, int y, PVOID curve)
   }
 
   cagdRedraw();
+}
+
+void my_curve_move(int x, int y, PVOID curve)
+{
+  auto my_curve = ( RND_Curve * )curve;
+
+  if (my_curve->get_lmb_d())
+    draw_curve(x, y, my_curve);
+}
+
+void my_curve_left_down(int x, int y, PVOID curve)
+{
+  auto my_curve = ( RND_Curve * )curve;
+
+  my_curve->set_lmb_d(true);
+}
+
+void my_curve_left_up(int x, int y, PVOID curve)
+{
+  auto my_curve = ( RND_Curve * )curve;
+
+  my_curve->set_lmb_d(false);
+  draw_curve(x, y, my_curve);
 }

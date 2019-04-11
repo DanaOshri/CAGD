@@ -11,3 +11,14 @@
 *.pdb
 #/demo/Debug
 *.ipch
+*.pch
+*.tlog
+*.obj
+*.exe
+*.ilk
+*.log
+*.bsc
+*.lib
+*.lastbuildstate
+*.idb
+*.sbr

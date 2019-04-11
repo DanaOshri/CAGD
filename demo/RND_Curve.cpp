@@ -9,7 +9,9 @@
 RND_Curve *RND_Curve::my_curve = NULL;
 
 
-RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1), B_id_(-1), t_max_(0.), t_min_(0.)
+RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
+                                         B_id_(-1), t_max_(0.),
+                                         t_min_(0.), lmb_d_(false)
 {
   std::vector<std::string> param_eqs(3);
 
