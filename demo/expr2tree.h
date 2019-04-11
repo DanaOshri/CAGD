@@ -1,3 +1,5 @@
+#ifndef E2TREE_h_
+#define E2TREE_h_
 
 /*****************************************************************************
 * The global constants - should be available to every body using expr2tree   *
@@ -84,3 +86,5 @@ void       e2t_setparamvalue(double Value, int Number);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // E2TREE_h_

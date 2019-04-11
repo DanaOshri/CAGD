@@ -137,6 +137,9 @@
   <ItemGroup>
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="expr2tree.c" />
+    <ClCompile Include="RND_Curve.cpp" />
+    <ClCompile Include="RND_Util.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="demo.rc" />
@@ -144,6 +147,9 @@
   <ItemGroup>
     <ClInclude Include="expr2tree.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RND_Curve.h" />
+    <ClInclude Include="RND_Util.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cagd.vcxproj">
