@@ -19,6 +19,7 @@ public:
   }
 
 public:
+  void reload_curve(std::string path);
   void T(int point_idx, CAGD_POINT point);
   void N(int point_idx, CAGD_POINT point);
   void B(int point_idx, CAGD_POINT point);
@@ -40,7 +41,11 @@ public:
   static RND_Curve *my_curve;
 
 private:
+  void draw_curve(std::string path);
+
+private:
   RND_Curve(std::string path);
+  UINT curve_id_;
   UINT T_id_;
   UINT N_id_;
   UINT B_id_;

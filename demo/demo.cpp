@@ -12,6 +12,7 @@
 void my_curve_left_up(int x, int y, PVOID curve);
 void my_curve_move(int x, int y, PVOID curve);
 void my_curve_left_down(int x, int y, PVOID userData);
+void my_curve_load_file(int x, int y, PVOID userData);
 
 #define D_CAGD
 
@@ -259,7 +260,8 @@ void myCommand(int id, int unUsed, PVOID userData)
     RND_Curve *curve = RND_Curve::get_instance("FrenetData/marc1.dat");
     cagdRegisterCallback(CAGD_MOUSEMOVE, my_curve_move, (PVOID)curve);
     cagdRegisterCallback(CAGD_LBUTTONDOWN, my_curve_left_down, (PVOID)curve);
-    cagdRegisterCallback(CAGD_LBUTTONUP, my_curve_left_up, (PVOID)curve);
+    cagdRegisterCallback(CAGD_LBUTTONUP, my_curve_left_up, ( PVOID )curve);
+    cagdRegisterCallback(CAGD_LOADFILE, my_curve_load_file, ( PVOID )curve);
     break;
   }
     case MY_CLICK:
@@ -360,4 +362,13 @@ void my_curve_left_up(int x, int y, PVOID curve)
 
   my_curve->set_lmb_d(false);
   draw_curve(x, y, my_curve);
+}
+
+void my_curve_load_file(int x, int y, PVOID userData)
+{
+  auto my_curve = ( RND_Curve * )userData;
+
+  std::string path = { ( const char * )x };
+
+  my_curve->reload_curve(path);
 }

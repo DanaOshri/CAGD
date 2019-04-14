@@ -41,7 +41,6 @@ void get_data(const std::string &path, std::vector<std::string> &param_eqs, doub
       std::istringstream params_stream(line);
       std::string str_prm;
 
-      //std::getline(params_stream, str_prm, ',');
       params_stream >> tmin >> tmax;
     }
   }

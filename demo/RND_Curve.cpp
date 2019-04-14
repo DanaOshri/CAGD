@@ -8,10 +8,42 @@
 
 RND_Curve *RND_Curve::my_curve = NULL;
 
+void RND_Curve::reload_curve(std::string path)
+{
+  if (curve_id_ != -1)
+  {
+    cagdFreeSegment(curve_id_);
+    curve_id_ = -1;
+  }
 
-RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
-                                         B_id_(-1), t_max_(0.),
-                                         t_min_(0.), lmb_d_(false)
+  if (T_id_ != -1)
+  {
+    cagdFreeSegment(T_id_);
+    T_id_ = -1;
+  }
+
+  if (N_id_ != -1)
+  {
+    cagdFreeSegment(N_id_);
+    N_id_ = -1;
+  }
+
+  if (B_id_ != -1)
+  {
+    cagdFreeSegment(B_id_);
+    B_id_ = -1;
+  }
+
+  if (K_id_ != -1)
+  {
+    cagdFreeSegment(K_id_);
+    K_id_ = -1;
+  }
+
+  draw_curve(path);
+}
+
+void RND_Curve::draw_curve(std::string path)
 {
   std::vector<std::string> param_eqs(3);
 
@@ -28,7 +60,7 @@ RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
     curve.resize(DENSITY + 1);
     loc_curve.resize(DENSITY + 1);
 
-    double alp = (t_max_ - t_min_) / (double)DENSITY;
+    double alp = (t_max_ - t_min_) / ( double )DENSITY;
 
     for (double stp = t_min_, i = 0; stp <= t_max_; stp += alp, ++i)
     {
@@ -39,16 +71,27 @@ RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
       double z = e2t_evaltree(treeZ);
 
       CAGD_POINT *point = new CAGD_POINT{ x, y, z };
-      curve[(int)i] = point;
-      loc_curve[(int)i] = *point;
+      curve[( int )i] = point;
+      loc_curve[( int )i] = *point;
     }
 
-    cagdAddPolyline(&loc_curve[0], loc_curve.size() - 1);
+    cagdSetColor(255, 255, 255);
+    curve_id_ = cagdAddPolyline(&loc_curve[0], loc_curve.size() - 1);
+
+    cagdRedraw();
   }
   else
   {
     printf("Error loading tree");
   }
+}
+
+RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
+                                         B_id_(-1), t_max_(0.),
+                                         t_min_(0.), lmb_d_(false),
+                                         curve_id_(-1)
+{
+  draw_curve(path);
 }
 
 double RND_Curve::get_t_from_point(int p)
