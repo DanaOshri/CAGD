@@ -16,7 +16,7 @@ static GLdouble modelView[16], projection[16];
 static GLint viewPort[4] = { 0, 0, 0, 0 };
 static GLuint hits[MAX_HITS];
 static GLint nHits;
-static GLint fuzziness = 4;
+static GLint fuzziness = 8;
 static GLdouble sensitive = 1;
 
 void cagdPick(int x, int y)
