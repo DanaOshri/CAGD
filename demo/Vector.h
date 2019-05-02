@@ -11,6 +11,7 @@ public:
   ~Vector();
 
   double  operator*(const Vector &) const;
+  Vector  operator*(double) const;
   Vector  operator%(const Vector &) const;
   double  norm() const;
   Vector &normalize();
@@ -23,3 +24,5 @@ private:
   std::vector<double> data_;
 
 };
+
+Vector operator*(double s, const Vector &vec);

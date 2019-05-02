@@ -10,34 +10,40 @@ RND_Curve *RND_Curve::my_curve = NULL;
 
 void RND_Curve::reload_curve(std::string path)
 {
-  if (curve_id_ != -1)
+  if (curve_id_ != K_NOT_USED)
   {
     cagdFreeSegment(curve_id_);
-    curve_id_ = -1;
+    curve_id_ = K_NOT_USED;
   }
 
-  if (T_id_ != -1)
+  if (T_id_ != K_NOT_USED)
   {
     cagdFreeSegment(T_id_);
-    T_id_ = -1;
+    T_id_ = K_NOT_USED;
   }
 
-  if (N_id_ != -1)
+  if (N_id_ != K_NOT_USED)
   {
     cagdFreeSegment(N_id_);
-    N_id_ = -1;
+    N_id_ = K_NOT_USED;
   }
 
-  if (B_id_ != -1)
+  if (B_id_ != K_NOT_USED)
   {
     cagdFreeSegment(B_id_);
-    B_id_ = -1;
+    B_id_ = K_NOT_USED;
   }
 
-  if (K_id_ != -1)
+  if (Tor_id_ != K_NOT_USED)
+  {
+    cagdFreeSegment(Tor_id_);
+    Tor_id_ = K_NOT_USED;
+  }
+
+  if (K_id_ != K_NOT_USED)
   {
     cagdFreeSegment(K_id_);
-    K_id_ = -1;
+    K_id_ = K_NOT_USED;
   }
 
   draw_curve(path);
@@ -86,10 +92,12 @@ void RND_Curve::draw_curve(std::string path)
   }
 }
 
-RND_Curve::RND_Curve(std::string path) : T_id_(-1), N_id_(-1),
-                                         B_id_(-1), t_max_(0.),
-                                         t_min_(0.), lmb_d_(false),
-                                         curve_id_(-1)
+RND_Curve::RND_Curve(std::string path) : T_id_(K_NOT_USED), N_id_(K_NOT_USED),
+                                         B_id_(K_NOT_USED), Tor_id_(K_NOT_USED),
+                                         K_id_(K_NOT_USED), curve_id_(K_NOT_USED),
+                                         t_max_(0.), t_min_(0.),
+                                         lmb_d_(false), rho_(0.)
+                                         
 {
   draw_curve(path);
 }
@@ -126,7 +134,7 @@ void RND_Curve::T(int point_idx, CAGD_POINT point)
 
   vector.push_back(second_point);
 
-  if (T_id_ != -1)
+  if (T_id_ != K_NOT_USED)
     cagdFreeSegment(T_id_);
 
   cagdSetColor(0, 255, 0);
@@ -172,7 +180,7 @@ void RND_Curve::N(int point_idx, CAGD_POINT point)
   vector.push_back(second_point);
 
 
-  if (N_id_ != -1)
+  if (N_id_ != K_NOT_USED)
     cagdFreeSegment(N_id_);
 
   cagdSetColor(0, 0, 255);
@@ -200,14 +208,32 @@ void RND_Curve::B(int point_idx, CAGD_POINT point)
   e2t_expr_node *drv_drv_treeY = e2t_derivtree(drv_treeY, E2T_PARAM_T);
   e2t_expr_node *drv_drv_treeZ = e2t_derivtree(drv_treeZ, E2T_PARAM_T);
 
-  double drv_drv_x = e2t_evaltree(drv_drv_treeX);
-  double drv_drv_y = e2t_evaltree(drv_drv_treeY);
-  double drv_drv_z = e2t_evaltree(drv_drv_treeZ);
+  double drv_2_x = e2t_evaltree(drv_drv_treeX);
+  double drv_2_y = e2t_evaltree(drv_drv_treeY);
+  double drv_2_z = e2t_evaltree(drv_drv_treeZ);
 
-  CAGD_POINT p_vector_2 = { drv_drv_x /*- point.x*/, drv_drv_y /*- point.y*/, drv_drv_z /*- point.z*/ };
+  CAGD_POINT p_vector_2 = { drv_2_x, drv_2_y, drv_2_z };
   Vector beta_tt = Vector(p_vector_2);
 
+  e2t_expr_node *drv_3_treeX = e2t_derivtree(drv_drv_treeX, E2T_PARAM_T);
+  e2t_expr_node *drv_3_treeY = e2t_derivtree(drv_drv_treeY, E2T_PARAM_T);
+  e2t_expr_node *drv_3_treeZ = e2t_derivtree(drv_drv_treeZ, E2T_PARAM_T);
+
+  double drv_3_x = e2t_evaltree(drv_3_treeX);
+  double drv_3_y = e2t_evaltree(drv_3_treeY);
+  double drv_3_z = e2t_evaltree(drv_3_treeZ);
+
+  CAGD_POINT p_vector_3 = { drv_3_x, drv_3_y, drv_3_z };
+  Vector beta_ttt = Vector(p_vector_3);
+
   Vector B = (beta_t % beta_tt).normalize();
+
+  double k_denom = (beta_t % beta_tt).norm();
+
+  rho_ = (beta_ttt * B) / k_denom;
+  Vector N = (beta_t % beta_tt).normalize() % beta_t.normalize();
+
+  Vector torsion_vec = -rho_ * N.normalize();
 
   std::vector<CAGD_POINT> vector;
 
@@ -217,9 +243,23 @@ void RND_Curve::B(int point_idx, CAGD_POINT point)
 
   vector.push_back(second_point);
 
+  std::vector<CAGD_POINT> tor_vec;
 
-  if (B_id_ != -1)
+  tor_vec.push_back(point);
+
+  CAGD_POINT tor_point = { torsion_vec.get_x() + point.x, torsion_vec.get_y() + point.y, torsion_vec.get_z() + point.z };
+
+  tor_vec.push_back(tor_point);
+
+
+  if (Tor_id_ != K_NOT_USED)
+    cagdFreeSegment(Tor_id_);
+
+  if (B_id_ != K_NOT_USED)
     cagdFreeSegment(B_id_);
+
+  cagdSetColor(255, 0, 255);
+  Tor_id_ = cagdAddPolyline(&tor_vec[0], tor_vec.size());
 
   cagdSetColor(255, 0, 0);
   B_id_ = cagdAddPolyline(&vector[0], vector.size());
@@ -277,7 +317,7 @@ void RND_Curve::K(int point_idx, CAGD_POINT point)
   }
 
 
-  if (K_id_ != -1)
+  if (K_id_ != K_NOT_USED)
     cagdFreeSegment(K_id_);
 
   cagdSetColor(255, 255, 0);

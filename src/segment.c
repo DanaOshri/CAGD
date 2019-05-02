@@ -117,7 +117,7 @@ UINT cagdAddText(const CAGD_POINT *where, PCSTR text)
   segment->where = (CAGD_POINT *)malloc(sizeof(CAGD_POINT));
   *segment->where = *where;
   if (!text)
-	  text = "";
+    text = "";
   segment->text = _strdup(text);
   segment->length = strlen(text);
   return id;
@@ -332,12 +332,12 @@ void drawSegments(GLenum mode)
     case CAGD_SEGMENT_POLYLINE:
       glBegin(GL_LINE_STRIP);
       for(i = 0; i < segment->length; i++)
-	glVertex3dv((GLdouble *)&segment->where[i]);
+  glVertex3dv((GLdouble *)&segment->where[i]);
       glEnd();
       break;
     case CAGD_SEGMENT_TEXT:
       if(mode == GL_SELECT)
-	break;
+  break;
       glRasterPos3dv((GLdouble *)segment->where);
       auxDrawStr(segment->text);
       break;
