@@ -1,0 +1,12 @@
+# CAGD
+# Lab 3 - Visualization of the Frenet Frame
+
+0.7*(sin(t)^3)
+0.7*(0.8125*cos(t) - 0.3125*cos(2*t) - 0.125*cos(3*t) - 0.0625*cos(4*t))
+0.7*cos(t)
+#0.0625*t^2
+
+#
+# And its domain:
+#
+0, 6.28
