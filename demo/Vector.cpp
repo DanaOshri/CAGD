@@ -1,10 +1,23 @@
 #include "Vector.h"
 
+
+Vector operator*(double s, const Vector &vec)
+{
+  return vec * s;
+}
+
 double Vector::operator*(const Vector &other) const
 {
   double res = data_[0] * other.data_[0] + data_[1] * other.data_[1] + data_[2] * other.data_[2];
 
   return res;
+}
+
+Vector Vector::operator*(double other) const
+{
+  CAGD_POINT res = { data_[0] * other, data_[1] * other, data_[2] * other };
+
+  return Vector(res);
 }
 
 Vector Vector::operator%(const Vector &other) const

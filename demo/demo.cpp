@@ -292,11 +292,11 @@ int main(int argc, char *argv[])
   HMENU hMenu;
   cagdBegin("CAGD", 512, 512);
   hMenu = CreatePopupMenu();
+  AppendMenu(hMenu, MF_STRING, MY_DRAWCURVE, "Draw Curve");
   AppendMenu(hMenu, MF_STRING, MY_CLICK, "Click");
   AppendMenu(hMenu, MF_STRING, MY_POLY, "Polyline");
   AppendMenu(hMenu, MF_STRING, MY_ANIM, "Animation");
   AppendMenu(hMenu, MF_STRING, MY_DRAG, "Drag, Popup & Dialog");
-  AppendMenu(hMenu, MF_STRING, MY_DRAWCURVE, "Draw Curve");
   cagdAppendMenu(hMenu, "Demos");
   myPopup = CreatePopupMenu();
   AppendMenu(myPopup, MF_STRING | MF_DISABLED, 0, "Point");
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
   AppendMenu(myPopup, MF_STRING, MY_COLOR, "Change color...");
   AppendMenu(myPopup, MF_STRING, MY_REMOVE, "Remove");
   cagdRegisterCallback(CAGD_MENU, myCommand, (PVOID)hMenu);
-  cagdShowHelp();
+
   cagdMainLoop();
   return 0;
 }
@@ -321,6 +321,7 @@ void draw_curve(int x, int y, RND_Curve *my_curve)
         id != my_curve->get_T_id() &&
         id != my_curve->get_N_id() &&
         id != my_curve->get_B_id() &&
+        id != my_curve->get_Tor_id() &&
         id != my_curve->get_K_id())
       break;
   if (id)
