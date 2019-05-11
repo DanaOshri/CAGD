@@ -30,6 +30,16 @@ Vector Vector::operator%(const Vector &other) const
   return Vector(point);
 }
 
+Vector Vector::operator+(const Vector &other) const
+{
+  CAGD_POINT point;
+  point.x = data_[0] + other.data_[0];
+  point.y = data_[1] + other.data_[1];
+  point.z = data_[2] + other.data_[2];
+  
+  return Vector(point);
+}
+
 double Vector::norm() const
 {
   return sqrt(data_[0] * data_[0] + data_[1] * data_[1] + data_[2] * data_[2]);

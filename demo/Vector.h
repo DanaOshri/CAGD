@@ -13,6 +13,7 @@ public:
   double  operator*(const Vector &) const;
   Vector  operator*(double) const;
   Vector  operator%(const Vector &) const;
+  Vector  operator+(const Vector &) const;
   double  norm() const;
   Vector &normalize();
 

@@ -4,7 +4,6 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-//#include <cmath>
 
 RND_Curve *RND_Curve::my_curve = NULL;
 

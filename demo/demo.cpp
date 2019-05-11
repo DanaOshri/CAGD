@@ -5,6 +5,7 @@
 #include "Vector.h"
 #include "RND_Util.h"
 #include "RND_Curve.h"
+#include "Curve.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -22,6 +23,7 @@ enum {
   MY_ANIM,
   MY_DRAG,
   MY_DRAWCURVE,
+  MY_BSPLINECURVE,
   MY_ADD,
   MY_COLOR,
   MY_REMOVE,
@@ -264,6 +266,12 @@ void myCommand(int id, int unUsed, PVOID userData)
     cagdRegisterCallback(CAGD_LOADFILE, my_curve_load_file, ( PVOID )curve);
     break;
   }
+  case MY_BSPLINECURVE:
+  {
+    BSplineCurve curve;
+    curve.draw_curve("bspline_data/dance.dat");
+    break;
+  }
     case MY_CLICK:
       //cagdSetView(CAGD_PERSP);
       //cagdSetDepthCue(TRUE);
@@ -293,6 +301,7 @@ int main(int argc, char *argv[])
   cagdBegin("CAGD", 512, 512);
   hMenu = CreatePopupMenu();
   AppendMenu(hMenu, MF_STRING, MY_DRAWCURVE, "Draw Curve");
+  AppendMenu(hMenu, MF_STRING, MY_BSPLINECURVE, "Draw Bspline");
   AppendMenu(hMenu, MF_STRING, MY_CLICK, "Click");
   AppendMenu(hMenu, MF_STRING, MY_POLY, "Polyline");
   AppendMenu(hMenu, MF_STRING, MY_ANIM, "Animation");

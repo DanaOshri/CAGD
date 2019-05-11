@@ -55,7 +55,7 @@ private:
   UINT B_id_;
   UINT K_id_;
   double t_min_, t_max_;
-  bool  lmb_d_;
+  bool   lmb_d_;
   double rho_;
 
 };
